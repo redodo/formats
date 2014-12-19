@@ -1,8 +1,14 @@
 Formats
 =======
 
-[<img src="https://img.shields.io/pypi/v/formats.svg?style=flat">](https://pypi.python.org/pypi/formats)
-[<img src="https://img.shields.io/pypi/l/formats.svg?style=flat">](https://github.com/redodo/formats/blob/master/LICENSE)
+|Version| |License|
+
+.. |Version| image:: https://img.shields.io/pypi/v/formats.svg?style=flat
+    :target: https://pypi.python.org/pypi/formats
+    :alt: Version
+.. |License| image:: https://img.shields.io/pypi/l/formats.svg?style=flat
+    :target: https://github.com/redodo/formats/blob/master/LICENSE
+    :alt: License
 
 
 Installation via PIP::
