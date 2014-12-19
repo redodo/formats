@@ -64,32 +64,32 @@ def composer(type):
     return default_bank.composer(type)
 
 
-def parse(type, text):
+def parse(type, data):
     """Parse text as a format.
 
     :param type: The unique name of the format
-    :param text: The text to parse as the format
+    :param data: The text to parse as the format
     """
-    return default_bank.parse(type, text)
+    return default_bank.parse(type, data)
 
 
-def compose(type, text):
+def compose(type, data):
     """Compose text as a format.
 
     :param type: The unique name of the format
-    :param text: The text to compose as the format
+    :param data: The text to compose as the format
     """
-    return default_bank.compose(type, text)
+    return default_bank.compose(type, data)
 
 
-def convert(type_from, type_to, text):
+def convert(type_from, type_to, data):
     """Parsers data from with one format and composes with another.
 
     :param type_from: The unique name of the format to parse with
     :param type_to: The unique name of the format to compose with
-    :param text: The text to convert
+    :param data: The text to convert
     """
-    return default_bank.convert(type_from, type_to, text)
+    return default_bank.convert(type_from, type_to, data)
 
 
 def discover(exclude=None):

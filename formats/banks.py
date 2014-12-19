@@ -71,38 +71,48 @@ class FormatBank(object):
             return f
         return decorator
 
-    def parse(self, type, text):
+    def parse(self, type, data):
         """Parse text as a format.
 
         :param type: The unique name of the format
-        :param text: The text to parse as the format
+        :param data: The text to parse as the format
         """
         try:
-            return self.registered_formats[type]['parser'](text)
+            return self.registered_formats[type]['parser'](data)
         except KeyError:
             raise NotImplementedError("No parser found for "
-                                      "type '{}'".format(type))
+                                      "type '{type}'".format(type=type))
 
-    def compose(self, type, text):
+    def compose(self, type, data):
         """Compose text as a format.
 
         :param type: The unique name of the format
-        :param text: The text to compose as the format
+        :param data: The text to compose as the format
         """
         try:
-            return self.registered_formats[type]['composer'](text)
+            return self.registered_formats[type]['composer'](data)
         except KeyError:
             raise NotImplementedError("No composer found for "
-                                      "type '{}'".format(type))
+                                      "type '{type}'".format(type=type))
 
-    def convert(self, type_from, type_to, text):
+    def convert(self, type_from, type_to, data):
         """Parsers data from with one format and composes with another.
 
         :param type_from: The unique name of the format to parse with
         :param type_to: The unique name of the format to compose with
-        :param text: The text to convert
+        :param data: The text to convert
         """
-        return self.compose(type_to, self.parse(type_from, text))
+        try:
+            return self.compose(type_to, self.parse(type_from, data))
+        except Exception as e:
+            raise ValueError(
+                "Couldn't convert '{from_}' to '{to}'. Possibly "
+                "because the parser of '{from_}' generates a "
+                "data structure incompatible with the composer "
+                "of '{to}'. This is the original error: \n\n"
+                "{error}: {message}".format(from_=type_from, to=type_to,
+                                            error=e.__class__.__name__,
+                                            message=e.message))
 
     def discover(self, exclude=None):
         """Automatically discovers and registers installed formats.
@@ -118,15 +128,34 @@ class FormatBank(object):
             exclude = [exclude]
 
         if 'json' not in exclude and 'json' not in self.registered_formats:
-            try:
-                import simplejson as json
-            except ImportError:
-                import json
-            self.register('json', json.loads, json.dumps)
-
+            self._discover_json()
         if 'yaml' not in exclude and 'yaml' not in self.registered_formats:
-            try:
-                import yaml
-                self.register('yaml', yaml.load, yaml.dump)
-            except ImportError:
-                pass
+            self._discover_yaml()
+
+    def _discover_json(self):
+        """Discovers the JSON format and registers it if available.
+
+        To speed up JSON parsing and composing, install `simplejson`::
+
+            pip install simplejson
+
+        The standard library module `json` will be used by default.
+        """
+        try:
+            import simplejson as json
+        except ImportError:
+            import json
+        self.register('json', json.loads, json.dumps)
+
+    def _discover_yaml(self):
+        """Discovers the YAML format and registers it if available.
+
+        Install YAML support via PIP::
+
+            pip install PyYAML
+        """
+        try:
+            import yaml
+            self.register('yaml', yaml.load, yaml.dump)
+        except ImportError:
+            pass
