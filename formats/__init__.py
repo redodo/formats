@@ -11,6 +11,6 @@
 
 from .api import (
     default_bank, bank, register, register_parser, register_composer,
-    parser, composer, parse, compose, convert, discover
+    parser, composer, parse, compose, meta, convert, discover
 )
 from .banks import FormatBank

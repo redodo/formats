@@ -18,7 +18,7 @@ def bank(discover=False, exclude=None):
     return FormatBank(discover, exclude)
 
 
-def register(type, parser, composer):
+def register(type, parser, composer, **meta):
     """Registers a parser and composer of a format.
 
     You can use this method to overwrite existing formats.
@@ -26,42 +26,47 @@ def register(type, parser, composer):
     :param type: The unique name of the format
     :param parser: The method to parse data as the format
     :param composer: The method to compose data as the format
+    :param meta: The extra information associated with the format
     """
-    return default_bank.register(type, parser, composer)
+    return default_bank.register(type, parser, composer, **meta)
 
 
-def register_parser(type, parser):
+def register_parser(type, parser, **meta):
     """Registers a parser of a format.
 
     :param type: The unique name of the format
     :param parser: The method to parse data as the format
+    :param meta: The extra information associated with the format
     """
-    return default_bank.register_parser(type, parser)
+    return default_bank.register_parser(type, parser, **meta)
 
 
-def register_composer(type, composer):
+def register_composer(type, composer, **meta):
     """Registers a composer of a format.
 
     :param type: The unique name of the format
     :param composer: The method to compose data as the format
+    :param meta: The extra information associated with the format
     """
-    return default_bank.register_composer(type, composer)
+    return default_bank.register_composer(type, composer, **meta)
 
 
-def parser(type):
+def parser(type, **meta):
     """Registers the decorated method as the parser of a format.
 
     :param type: The unique name of the format
+    :param meta: The extra information associated with the format
     """
-    return default_bank.parser(type)
+    return default_bank.parser(type, **meta)
 
 
-def composer(type):
+def composer(type, **meta):
     """Registers the decorated method as the composer of a format.
 
     :param type: The unique name of the format
+    :param meta: The extra information associated with the format
     """
-    return default_bank.composer(type)
+    return default_bank.composer(type, **meta)
 
 
 def parse(type, data):
@@ -90,6 +95,14 @@ def convert(type_from, type_to, data):
     :param data: The text to convert
     """
     return default_bank.convert(type_from, type_to, data)
+
+
+def meta(type):
+    """Retreived meta information of a format.
+
+    :param meta: The extra information associated with the format
+    """
+    return default_bank.meta(type)
 
 
 def discover(exclude=None):

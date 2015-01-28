@@ -15,7 +15,7 @@ class FormatBank(object):
         if discover:
             self.discover(exclude)
 
-    def register(self, type, parser, composer):
+    def register(self, type, parser, composer, **meta):
         """Registers a parser and composer of a format.
 
         You can use this method to overwrite existing formats.
@@ -23,24 +23,29 @@ class FormatBank(object):
         :param type: The unique name of the format
         :param parser: The method to parse data as the format
         :param composer: The method to compose data as the format
+        :param meta: The extra information associated with the format
         """
         self.registered_formats[type] = {
             'parser': parser,
             'composer': composer,
+            'meta': meta,
         }
 
-    def register_parser(self, type, parser):
+    def register_parser(self, type, parser, **meta):
         """Registers a parser of a format.
 
         :param type: The unique name of the format
         :param parser: The method to parse data as the format
+        :param meta: The extra information associated with the format
         """
         try:
             self.registered_formats[type]['parser'] = parser
         except KeyError:
             self.registered_formats[type] = {'parser': parser}
+        if meta:
+            self.register_meta(type, **meta)
 
-    def register_composer(self, type, composer):
+    def register_composer(self, type, composer, **meta):
         """Registers a composer of a format.
 
         :param type: The unique name of the format
@@ -50,24 +55,43 @@ class FormatBank(object):
             self.registered_formats[type]['composer'] = composer
         except KeyError:
             self.registered_formats[type] = {'composer': composer}
+        if meta:
+            self.register_meta(type, **meta)
 
-    def parser(self, type):
+    def register_meta(self, type, **meta):
+        """Registers extra _meta_ information about a format.
+
+        :param type: The unique name of the format
+        :param meta: The extra information associated with the format
+        """
+        try:
+            self.registered_formats[type]['meta'] = meta
+        except KeyError:
+            self.registered_formats[type] = {'meta': meta}
+
+    def parser(self, type, **meta):
         """Registers the decorated method as the parser of a format.
 
         :param type: The unique name of the format
+        :param meta: The extra information associated with the format
         """
         def decorator(f):
             self.register_parser(type, f)
+            if meta:
+                self.register_meta(type, **meta)
             return f
         return decorator
 
-    def composer(self, type):
+    def composer(self, type, **meta):
         """Registers the decorated method as the composer of a format.
 
         :param type: The unique name of the format
+        :param meta: The extra information associated with the format
         """
         def decorator(f):
             self.register_composer(type, f)
+            if meta:
+                self.register_meta(type, **meta)
             return f
         return decorator
 
@@ -114,6 +138,13 @@ class FormatBank(object):
                                             error=e.__class__.__name__,
                                             message=e.message))
 
+    def meta(self, type):
+        """Retreived meta information of a format.
+
+        :param meta: The extra information associated with the format
+        """
+        return self.registered_formats.get(type).get('meta')
+
     def discover(self, exclude=None):
         """Automatically discovers and registers installed formats.
 
@@ -128,11 +159,11 @@ class FormatBank(object):
             exclude = [exclude]
 
         if 'json' not in exclude and 'json' not in self.registered_formats:
-            self._discover_json()
+            self.discover_json()
         if 'yaml' not in exclude and 'yaml' not in self.registered_formats:
-            self._discover_yaml()
+            self.discover_yaml()
 
-    def _discover_json(self):
+    def discover_json(self):
         """Discovers the JSON format and registers it if available.
 
         To speed up JSON parsing and composing, install `simplejson`::
@@ -147,7 +178,7 @@ class FormatBank(object):
             import json
         self.register('json', json.loads, json.dumps)
 
-    def _discover_yaml(self):
+    def discover_yaml(self):
         """Discovers the YAML format and registers it if available.
 
         Install YAML support via PIP::
