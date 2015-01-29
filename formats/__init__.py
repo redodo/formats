@@ -14,3 +14,4 @@ from .api import (
     parser, composer, parse, compose, meta, convert, discover
 )
 from .banks import FormatBank
+from .helpers import discover_json, discover_yaml
